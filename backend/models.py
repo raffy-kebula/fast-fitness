@@ -1,11 +1,27 @@
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List
 import datetime
-from typing import Optional
-
-from pydantic import BaseModel
-from pydantic.v1 import EmailStr
 
 
-class User(BaseModel):
+class UserCreateORM(BaseModel):
+    name: str
+    surname: str
+    date_of_birth: datetime.date
+    location_of_birth: str
+    country: str
+    street_address: str
+    street_number: int
+    city: str
+    zip_code: str
+    phone_number: str
+    username: str
+    email: EmailStr
+    password: str  # hash in backend
+
+    model_config = {"from_attributes": True}
+
+
+class UserOutORM(BaseModel):
     id: int
     name: str
     surname: str
@@ -19,35 +35,31 @@ class User(BaseModel):
     phone_number: str
     username: str
     email: EmailStr
-    password: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class CreditCard(BaseModel):
+class CreditCardORM(BaseModel):
     id: int
     user_id: int
-    token: str  # generic token by Payment Service Provider
+    token: str          # generic token by Payment Service Provider
     last_4: str
     brand: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class Subscription(BaseModel):
+class SubscriptionORM(BaseModel):
     id: int
     cost: float
     duration_month: int
     weekly_accesses: int
     description: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class SubscriptionUserCard(BaseModel):
+class SubscriptionUserCardORM(BaseModel):
     id: int
     user_id: int
     card_id: int
@@ -56,24 +68,22 @@ class SubscriptionUserCard(BaseModel):
     expiry_date: datetime.date
     automatic_renewal: bool = False
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class Course(BaseModel):
+class CourseORM(BaseModel):
     id: int
     type: str
-    description: str
+    description: Optional[str] = None
     n_accesses: int
     cost: float
     duration_month: int
     require_subscription: bool = False
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class CourseUserCard(BaseModel):
+class CourseUserCardORM(BaseModel):
     id: int
     user_id: int
     card_id: int
@@ -82,11 +92,10 @@ class CourseUserCard(BaseModel):
     expiry_date: datetime.date
     automatic_renewal: bool = False
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class ReservationCourse(BaseModel):
+class ReservationCourseORM(BaseModel):
     id: int
     user_id: int
     course_id: int
@@ -94,47 +103,40 @@ class ReservationCourse(BaseModel):
     from_hour: datetime.time
     to_hour: datetime.time
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class Exercise(BaseModel):
+class ExerciseORM(BaseModel):
     id: int
     name: str
     description: Optional[str] = None
     muscle_group: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class TrainingExercise(BaseModel):
+class TrainingExerciseORM(BaseModel):
     id: int
     exercise_id: int
     sets: int
     reps: int
     weight: Optional[float] = None
-    order: int
+    position: int
     note: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 
-class TrainingCard(BaseModel):
+class TrainingCardORM(BaseModel):
     id: int
     user_id: int
     init_date: datetime.date
     expiry_date: datetime.date
     description: Optional[str] = None
     note: Optional[str] = None
-    exercise_ids: list[int]
+    exercises: List[TrainingExerciseORM] = []
 
-    class Config:
-        orm_mode = True
-
-
-
+    model_config = {"from_attributes": True}
 
 
 
