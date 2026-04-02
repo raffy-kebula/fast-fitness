@@ -1,5 +1,9 @@
 import datetime
+from typing import Optional
+
 from pydantic import BaseModel
+from pydantic.v1 import EmailStr
+
 
 class User(BaseModel):
     id: int
@@ -14,8 +18,12 @@ class User(BaseModel):
     zip_code: str
     phone_number: str
     username: str
-    email: str
+    email: EmailStr
     password: str
+
+    class Config:
+        orm_mode = True
+
 
 class CreditCard(BaseModel):
     id: int
@@ -24,12 +32,20 @@ class CreditCard(BaseModel):
     last_4: str
     brand: str
 
+    class Config:
+        orm_mode = True
+
+
 class Subscription(BaseModel):
     id: int
     cost: float
     duration_month: int
     weekly_accesses: int
-    description: str
+    description: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
 
 class SubscriptionUserCard(BaseModel):
     id: int
@@ -38,7 +54,11 @@ class SubscriptionUserCard(BaseModel):
     subscription_id: int
     init_date: datetime.date
     expiry_date: datetime.date
-    automatic_renewal: bool
+    automatic_renewal: bool = False
+
+    class Config:
+        orm_mode = True
+
 
 class Course(BaseModel):
     id: int
@@ -47,7 +67,11 @@ class Course(BaseModel):
     n_accesses: int
     cost: float
     duration_month: int
-    require_subscription: bool
+    require_subscription: bool = False
+
+    class Config:
+        orm_mode = True
+
 
 class CourseUserCard(BaseModel):
     id: int
@@ -56,7 +80,11 @@ class CourseUserCard(BaseModel):
     course_id: int
     init_date: datetime.date
     expiry_date: datetime.date
-    automatic_renewal: bool
+    automatic_renewal: bool = False
+
+    class Config:
+        orm_mode = True
+
 
 class ReservationCourse(BaseModel):
     id: int
@@ -66,29 +94,44 @@ class ReservationCourse(BaseModel):
     from_hour: datetime.time
     to_hour: datetime.time
 
+    class Config:
+        orm_mode = True
+
+
 class Exercise(BaseModel):
     id: int
     name: str
-    description: str
+    description: Optional[str] = None
     muscle_group: str
+
+    class Config:
+        orm_mode = True
+
 
 class TrainingExercise(BaseModel):
     id: int
     exercise_id: int
     sets: int
     reps: int
-    weight: float | None = None
+    weight: Optional[float] = None
     order: int
-    note: str | None = None
+    note: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
 
 class TrainingCard(BaseModel):
     id: int
     user_id: int
     init_date: datetime.date
     expiry_date: datetime.date
-    description: str
-    note: str | None = None
+    description: Optional[str] = None
+    note: Optional[str] = None
     exercise_ids: list[int]
+
+    class Config:
+        orm_mode = True
 
 
 
