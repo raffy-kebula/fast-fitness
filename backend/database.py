@@ -6,6 +6,13 @@ db_url = f"postgresql://raffy:{PASSWORD}@localhost:5432/fitness"
 engine = create_engine(db_url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 # try:
 #     with engine.connect() as conn:
 #         result = conn.execute(text("SELECT version();"))
