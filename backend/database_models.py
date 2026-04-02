@@ -181,6 +181,8 @@ class TrainingCard(Base):
     exercises = relationship("TrainingCardExercise", back_populates="training_card",
                              cascade="all, delete-orphan")
 
+    user = relationship("User", back_populates="training_cards")
+
 
 # TRAINING CARD EXERCISE (position + day per user)
 class TrainingCardExercise(Base):
@@ -204,4 +206,4 @@ class TrainingCardExercise(Base):
     exercise = relationship("Exercise", back_populates="card_exercises")
 
     __table_args__ = (UniqueConstraint("training_card_id", "day_execution", "position",
-                                       name="uq_card_day_position"))
+                                       name="uq_card_day_position"),)
