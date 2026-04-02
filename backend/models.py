@@ -397,6 +397,7 @@ class ExerciseOutORM(BaseModel):
 
 class TrainingCardExerciseCreateORM(BaseModel):
     exercise_id: int
+    training_card_id: int
     day_execution: WeekDay
     position: int
     sets: int
@@ -430,6 +431,7 @@ class TrainingCardExerciseCreateORM(BaseModel):
 class TrainingCardExerciseOutORM(BaseModel):
     id: int
     exercise_id: int
+    training_card_id: int
     day_execution: WeekDay
     position: int
     sets: int
