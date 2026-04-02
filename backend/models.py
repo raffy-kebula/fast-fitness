@@ -5,7 +5,15 @@ class User(BaseModel):
     id: int
     name: str
     surname: str
+    date_of_birth: datetime.date
+    location_of_birth: str
+    country: str
+    street_address: str
+    street_number: int
+    city: str
+    capital: str
     telephone: str
+    username: str
     email: str
     password: str
 
