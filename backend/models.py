@@ -226,7 +226,7 @@ class SubscriptionUserCardCreateORM(BaseModel):
         return values
 
 
-class SubscriptionUserCardOutORM(SubscriptionUserCardCreateORM):
+class SubscriptionUserCardOutORM(BaseModel):
     id: int
     user_id: int
     card_id: int
@@ -305,7 +305,7 @@ class CourseUserCardCreateORM(BaseModel):
         return values
 
 
-class CourseUserCardOutORM(CourseUserCardCreateORM):
+class CourseUserCardOutORM(BaseModel):
     id: int
     card_id: int
     course_id: int
@@ -342,7 +342,7 @@ class ReservationCourseCreateORM(BaseModel):
         return self
 
 
-class ReservationCourseOutORM(ReservationCourseCreateORM):
+class ReservationCourseOutORM(BaseModel):
     id: int
     user_id: int
     course_id: int
@@ -365,7 +365,7 @@ class WeekDay(str, Enum):
     Friday = "Friday"
     Saturday = "Saturday"
 
-class ExerciseORM(BaseModel):
+class ExerciseCreateORM(BaseModel):
     name: str
     muscle_group: str
     description: Optional[str] = None
@@ -387,7 +387,7 @@ class ExerciseORM(BaseModel):
         return v
 
 
-class ExerciseOutORM(ExerciseORM):
+class ExerciseOutORM(BaseModel):
     id: int
     muscle_group: str
     description: Optional[str] = None
@@ -427,7 +427,7 @@ class TrainingCardExerciseCreateORM(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class TrainingCardExerciseOutORM(TrainingCardExerciseCreateORM):
+class TrainingCardExerciseOutORM(BaseModel):
     id: int
     exercise_id: int
     day_execution: WeekDay
@@ -459,7 +459,7 @@ class TrainingCardCreateORM(BaseModel):
         return values
 
 
-class TrainingCardOutORM(TrainingCardCreateORM):
+class TrainingCardOutORM(BaseModel):
     id: int
     user_id: int
     init_date: datetime.date
