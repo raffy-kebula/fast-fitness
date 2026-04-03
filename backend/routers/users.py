@@ -4,7 +4,7 @@ from passlib.context import CryptContext
 
 from database import get_db
 from database_models import User
-from models import UserCreateORM, UserOutORM
+from models import UserCreateORM, UserOutORM, UserInORM
 
 router = APIRouter(
     prefix="/users",
@@ -72,3 +72,16 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 @router.get("/", response_model=list[UserOutORM])
 def list_users(limit: int = 20, db: Session = Depends(get_db)):
     return db.query(User).limit(limit).all()
+
+@router.post("/login", response_model=UserOutORM)
+def login_user(user_in: UserInORM, db: Session = Depends(get_db)):
+
+    db_user = db.query(User).filter(User.username == user_in.username).first()
+
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    if not pwd_context.verify(user_in.password, db_user.password):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    return db_user

@@ -102,7 +102,7 @@ class UserCreateORM(BaseModel):
     @field_validator("phone_number")
     @classmethod
     def phone_number_format(cls, v):
-        if not re.fullmatch(r"^\+\d{1,3}\s\d{6,14}$", v):
+        if not re.fullmatch(r"^\+\d{1,3}\d{6,14}$", v):
             raise ValueError("Phone number must be in international format, e.g., +39 123456789.")
         return v
 
@@ -126,31 +126,58 @@ class UserOutORM(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class UserInORM(BaseModel):
+    username: str
+    password: str
+
+    model_config = {"from_attributes": True}
+
+
 # -------------------------------------------------------------------------
 # CREDIT CARD
 # -------------------------------------------------------------------------
 class CreditCardCreateORM(BaseModel):
-    """token comes from the PSP."""
     user_id: int
-    token: str
-    last_4: str
+    number: str
+    expiry_date: str
     brand: str
 
     model_config = {"from_attributes": True}
 
-    @field_validator("token")
+    @field_validator("number")
     @classmethod
-    def token_length(cls, v):
-        if not v or len(v) < 16:
-            raise ValueError("Token must be at least 16 characters.")
+    def number_length(cls, v):
+        if not v or not v.isdigit() or len(v) != 16:
+            raise ValueError("Number of credit card not valid.")
         return v
 
-    @field_validator("last_4")
+    @field_validator("expiry_date")
     @classmethod
-    def last4_digits(cls, v):
-        if not v or not v.isdigit() or len(v) != 4:
-            raise ValueError("last_4 must be exactly 4 digits.")
-        return v
+    def check_expire(cls, v):
+        expiry_date = str.split(v, "-")
+
+        expiry_month = expiry_date[0]
+        expiry_year = expiry_date[1]
+
+        if expiry_month.isdigit() and expiry_year.isdigit():
+            expiry_month = int(expiry_month)
+            expiry_year = int(expiry_year)
+        else:
+            raise ValueError("Expiry month and Expiry year must be digits.")
+
+        if expiry_month > 12 or expiry_month < 1:
+            raise ValueError("Expiry month must be between 1 and 12.")
+
+        if expiry_year < datetime.datetime.now().year:
+            raise ValueError("Expiry year must be greater or equal than current year.")
+
+        import calendar
+        last_day = calendar.monthrange(expiry_year, expiry_month)[1]
+        expiry_date = datetime.date(expiry_year, expiry_month, last_day)
+
+        if expiry_date < datetime.datetime.now():
+            raise ValueError("Credit card is expired.")
+
 
     @field_validator("brand")
     @classmethod
@@ -164,7 +191,8 @@ class CreditCardCreateORM(BaseModel):
 class CreditCardOutORM(BaseModel):
     id: int
     user_id: int
-    last_4: str
+    number: str
+    expiry_date: str
     brand: str
 
     model_config = {"from_attributes": True}

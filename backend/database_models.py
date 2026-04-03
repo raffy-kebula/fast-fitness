@@ -42,9 +42,9 @@ class CreditCard(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    token = Column(String(128))
-    last_4 = Column(String(4))
-    brand = Column(String(50))
+    number = Column(String(16), nullable=False)
+    expiry_date = Column(String(7), nullable=False)
+    brand = Column(String(50), nullable=False)
 
     # relationship
     user = relationship("User", back_populates="credit_cards")
