@@ -42,7 +42,7 @@ class CreditCard(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    number = Column(String(16), nullable=False)
+    number = Column(String(16), nullable=False, unique=True)
     expiry_date = Column(String(7), nullable=False)
     brand = Column(String(50), nullable=False)
 
