@@ -38,8 +38,14 @@ def delete_course(db: Session, course_id: int) -> Course:
     return db_course
 
 
+# FIX: user_id rimosso da CourseUserCard — join tramite CreditCard per filtrare per utente
 def list_courses_by_user(db: Session, user_id: int) -> list[CourseUserCard]:
-    return db.query(CourseUserCard).filter(CourseUserCard.user_id == user_id).all()
+    return (
+        db.query(CourseUserCard)
+        .join(CreditCard, CourseUserCard.card_id == CreditCard.id)
+        .filter(CreditCard.user_id == user_id)
+        .all()
+    )
 
 
 def list_courses(db: Session, cost_sup: float) -> list[Course]:
@@ -47,20 +53,24 @@ def list_courses(db: Session, cost_sup: float) -> list[Course]:
 
 
 def create_course_by_user(db: Session, course_card_in: CourseUserCardCreateORM) -> CourseUserCard:
-    # Validate entities exist
-    if not db.get(User, course_card_in.user_id):
-        raise HTTPException(status_code=404, detail="User not found.")
-    if not db.get(CreditCard, course_card_in.card_id):
+    db_card = db.get(CreditCard, course_card_in.card_id)
+    if not db_card:
         raise HTTPException(status_code=404, detail="Credit card not found.")
     if not db.get(Course, course_card_in.course_id):
         raise HTTPException(status_code=404, detail="Course not found.")
 
-    # Prevent duplicate active course enrollment
-    existing = db.query(CourseUserCard).filter(
-        CourseUserCard.user_id == course_card_in.user_id,
-        CourseUserCard.course_id == course_card_in.course_id,
-        CourseUserCard.expiry_date >= course_card_in.init_date,
-    ).first()
+    # Prevenire doppia iscrizione attiva allo stesso corso per lo stesso utente
+    # (via join su CreditCard per risalire all'utente)
+    existing = (
+        db.query(CourseUserCard)
+        .join(CreditCard, CourseUserCard.card_id == CreditCard.id)
+        .filter(
+            CreditCard.user_id == db_card.user_id,
+            CourseUserCard.course_id == course_card_in.course_id,
+            CourseUserCard.expiry_date >= course_card_in.init_date,
+        )
+        .first()
+    )
     if existing:
         raise HTTPException(
             status_code=409,
@@ -75,11 +85,14 @@ def create_course_by_user(db: Session, course_card_in: CourseUserCardCreateORM) 
 
 
 def delete_course_by_user(db: Session, course_user_card_id: int, user_id: int) -> CourseUserCard:
-    if not db.get(User, user_id):
-        raise HTTPException(status_code=404, detail="User not found.")
     db_course_card = db.get(CourseUserCard, course_user_card_id)
     if not db_course_card:
         raise HTTPException(status_code=404, detail="CourseUserCard not found.")
+
+    db_card = db.get(CreditCard, db_course_card.card_id)
+    if not db_card or db_card.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized.")
+
     db.delete(db_course_card)
     db.commit()
     return db_course_card

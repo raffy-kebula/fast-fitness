@@ -255,7 +255,6 @@ class SubscriptionOutORM(BaseModel):
 
 
 class SubscriptionUserCardCreateORM(BaseModel):
-    user_id: int
     card_id: int
     subscription_id: int
     init_date: datetime.date
@@ -276,7 +275,6 @@ class SubscriptionUserCardCreateORM(BaseModel):
 
 class SubscriptionUserCardOutORM(BaseModel):
     id: int
-    user_id: int
     card_id: int
     subscription_id: int
     init_date: datetime.date
@@ -334,7 +332,6 @@ class CourseOutORM(BaseModel):
 
 
 class CourseUserCardCreateORM(BaseModel):
-    user_id: int
     card_id: int
     course_id: int
     init_date: datetime.date
@@ -355,7 +352,6 @@ class CourseUserCardCreateORM(BaseModel):
 
 class CourseUserCardOutORM(BaseModel):
     id: int
-    user_id: int
     card_id: int
     course_id: int
     init_date: datetime.date
@@ -365,9 +361,11 @@ class CourseUserCardOutORM(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# -------------------------------------------------------------------------
+# RESERVATIONS
+# -------------------------------------------------------------------------
 class ReservationCourseCreateORM(BaseModel):
-    user_id: int
-    course_id: int
+    course_user_card_id: int
     date: datetime.date
     from_hour: datetime.time
     to_hour: datetime.time
@@ -393,8 +391,7 @@ class ReservationCourseCreateORM(BaseModel):
 
 class ReservationCourseOutORM(BaseModel):
     id: int
-    user_id: int
-    course_id: int
+    course_user_card_id: int
     date: datetime.date
     from_hour: datetime.time
     to_hour: datetime.time
@@ -438,7 +435,7 @@ class ExerciseCreateORM(BaseModel):
 
 class ExerciseOutORM(BaseModel):
     id: int
-    name: str  # FIX: was missing in original
+    name: str
     muscle_group: str
     description: Optional[str] = None
 

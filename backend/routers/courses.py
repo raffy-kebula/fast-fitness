@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 from database import get_db
+from database_models import CreditCard
 from models import (
     CourseOutORM, CourseCreateORM,
     CourseUserCardCreateORM, CourseUserCardOutORM,
@@ -106,7 +107,8 @@ def create_course_by_user(
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    if course_user_card_in.user_id != current_user.id:
+    db_card = db.get(CreditCard, course_user_card_in.card_id)
+    if not db_card or db_card.user_id != current_user.id:
         raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
     return course_service.create_course_by_user(db, course_user_card_in)
 
@@ -119,16 +121,13 @@ def list_courses(
     return course_service.list_courses(db, cost_sup)
 
 
-@router.delete("/{course_user_card_id}", response_model=CourseUserCardOutORM)
+@router.delete("/user/{course_user_card_id}", response_model=CourseUserCardOutORM)
 def delete_course_by_user(
     course_user_card_id: int,
-    user_id: int,
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    if user_id != current_user.id:
-        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
-    return course_service.delete_course_by_user(db, course_user_card_id, user_id)
+    return course_service.delete_course_by_user(db, course_user_card_id, current_user.id)
 
 
 @router.get("/{course_id}", response_model=CourseOutORM)

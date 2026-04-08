@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 from database import get_db
+from database_models import CreditCard
 from models import (
     SubscriptionOutORM, SubscriptionCreateORM,
     SubscriptionUserCardCreateORM, SubscriptionUserCardOutORM,
@@ -73,7 +74,7 @@ def profit_month(
 ):
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Admin privileges required.")
-    return {"profit_month": get_profit_by_week(db)}
+    return {"profit_month": get_profit_by_month(db)}
 
 
 @router.get("/profit/year")
@@ -96,10 +97,8 @@ def list_subscriptions_by_user(
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    # Users can only see their own subscriptions; admins can see any
     if current_user.id != user_id and current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
-    # single JOIN query
     return sub_service.list_subscriptions_by_user(db, user_id)
 
 
@@ -109,7 +108,9 @@ def create_subscription_by_user(
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    if subscription_user_card_in.user_id != current_user.id:
+    # Verifica che la carta nel body appartenga all'utente corrente
+    db_card = db.get(CreditCard, subscription_user_card_in.card_id)
+    if not db_card or db_card.user_id != current_user.id:
         raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
     return sub_service.create_subscription_by_user(db, subscription_user_card_in)
 
@@ -122,16 +123,14 @@ def list_subscriptions(
     return sub_service.list_subscriptions(db, cost_sup)
 
 
-@router.delete("/{subscription_user_card_id}", response_model=SubscriptionUserCardOutORM)
+@router.delete("/user/{subscription_user_card_id}", response_model=SubscriptionUserCardOutORM)
 def delete_subscription_by_user(
     subscription_user_card_id: int,
-    user_id: int,
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    if user_id != current_user.id:
-        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not authorized.")
-    return sub_service.delete_subscription_by_user(db, subscription_user_card_id, user_id)
+    return sub_service.delete_subscription_by_user(db, subscription_user_card_id, current_user.id)
+
 
 @router.get("/{subscription_id}", response_model=SubscriptionOutORM)
 def get_subscription(subscription_id: int, db: Session = Depends(get_db)):
