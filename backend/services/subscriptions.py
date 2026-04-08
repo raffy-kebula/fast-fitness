@@ -1,4 +1,7 @@
+import datetime
+
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from database_models import Subscription, SubscriptionUserCard, CreditCard, User
@@ -39,10 +42,9 @@ def delete_subscription(db: Session, subscription_id: int) -> Subscription:
     return db_sub
 
 
-def list_subscriptions_by_user(db: Session, user_id: int) -> list[Subscription]:
+def list_subscriptions_by_user(db: Session, user_id: int) -> list[SubscriptionUserCard]:
     return (
-        db.query(Subscription)
-        .join(SubscriptionUserCard, SubscriptionUserCard.subscription_id == Subscription.id)
+        db.query(SubscriptionUserCard)
         .filter(SubscriptionUserCard.user_id == user_id)
         .all()
     )
@@ -80,3 +82,59 @@ def create_subscription_by_user(
     db.commit()
     db.refresh(db_sub_card)
     return db_sub_card
+
+
+def delete_subscription_by_user(
+    db: Session, subscription_user_card_id: int, user_id: int
+) -> SubscriptionUserCard:
+
+    if not db.get(User, user_id):
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    db_sub_card = db.get(SubscriptionUserCard, subscription_user_card_id)
+    if not db_sub_card:
+        raise HTTPException(status_code=404, detail="SubscriptionUser not found.")
+
+    db.delete(db_sub_card)
+    db.commit()
+    return db_sub_card
+
+
+def _get_profit_between(db: Session, start_date: datetime.date, end_date: datetime.date) -> float:
+    total = (
+        db.query(func.sum(Subscription.cost))
+        .join(SubscriptionUserCard, Subscription.id == SubscriptionUserCard.subscription_id)
+        .filter(
+            SubscriptionUserCard.init_date >= start_date,
+            SubscriptionUserCard.init_date <= end_date
+        )
+        .scalar()
+    )
+    return float(total or 0)
+
+def get_profit_by_week(db: Session) -> float:
+    today = datetime.date.today()
+    start_week = today - datetime.timedelta(days=today.weekday())
+    end_week = start_week + datetime.timedelta(days=6)
+
+    return _get_profit_between(db, start_week, end_week)
+
+def get_profit_by_month(db: Session) -> float:
+    today = datetime.date.today()
+    start_month = today.replace(day=1)
+
+    if today.month == 12:
+        next_month = today.replace(year=today.year + 1, month=1, day=1)
+    else:
+        next_month = today.replace(month=today.month + 1, day=1)
+
+    end_month = next_month - datetime.timedelta(days=1)
+
+    return _get_profit_between(db, start_month, end_month)
+
+def get_profit_by_year(db: Session) -> float:
+    today = datetime.date.today()
+    start_year = today.replace(month=1, day=1)
+    end_year = today.replace(month=12, day=31)
+
+    return _get_profit_between(db, start_year, end_year)

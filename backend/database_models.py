@@ -7,7 +7,6 @@ from sqlalchemy import UniqueConstraint, Enum
 import enum
 
 
-# FIX: DeclarativeBase is the modern SQLAlchemy 2.x approach
 class Base(DeclarativeBase):
     pass
 

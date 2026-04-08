@@ -14,5 +14,3 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(credit_cards.router)
 app.include_router(subscriptions.router)
-
-# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJleHAiOjE3NzU1ODk3MjZ9.n15zAmmx-Yf-Ua5BUVacNunLG0TVZfA-9uDKEq_bwd8
