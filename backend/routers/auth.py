@@ -39,19 +39,19 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         user_id: int = payload.get("user_id")
         role: str = payload.get("role")
         if user_id is None:
-            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid token")
+            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid token.")
         return CurrentUser(id=user_id, role=role)
     except ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
+        raise HTTPException(status_code=401, detail="Token expired.")
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid token.")
 
 
 @router.post("/login")
 def login(user_in: UserInORM, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user_in.username).first()
     if not db_user or not pwd_context.verify(user_in.password, db_user.password):
-        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid credentials.")
 
     token_data = {"user_id": db_user.id, "role": db_user.role.value}
     access_token = create_access_token(token_data)
