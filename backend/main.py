@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from database import engine
 from database_models import Base
 from routers import users, credit_cards, auth, subscriptions, courses, reservations, training_cards
@@ -17,3 +18,11 @@ app.include_router(subscriptions.router)
 app.include_router(courses.router)
 app.include_router(reservations.router)
 app.include_router(training_cards.router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
