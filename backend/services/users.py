@@ -20,7 +20,7 @@ def assert_username_unique(db: Session, username: str, exclude_user_id: int = No
     if exclude_user_id:
         q = q.filter(User.id != exclude_user_id)
     if q.first():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already taken.")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username già in uso.")
 
 
 def assert_email_unique(db: Session, email: str, exclude_user_id: int = None):
@@ -28,7 +28,7 @@ def assert_email_unique(db: Session, email: str, exclude_user_id: int = None):
     if exclude_user_id:
         q = q.filter(User.id != exclude_user_id)
     if q.first():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered.")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email già registrata.")
 
 
 def create_user(db: Session, user_in: UserCreateORM) -> User:

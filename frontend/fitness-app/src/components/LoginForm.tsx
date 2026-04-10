@@ -57,9 +57,9 @@ export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
             type="button"
             className="btn btn-outline-secondary"
             onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-label={showPassword ? "Nascondi password" : "Mostra password"}
           >
-            {showPassword ? "Hide" : "Show"}
+            {showPassword ? "Nascondi" : "Mostra"}
           </button>
         </div>
       </div>
@@ -83,7 +83,7 @@ export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
               aria-hidden="true"
             />
           )}
-          {loading ? "Sign in progress..." : "Sign in"}
+          {loading ? "Accesso in corso..." : "Accedi"}
         </button>
       </div>
     </form>

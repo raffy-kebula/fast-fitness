@@ -24,8 +24,8 @@ export function LoginPage() {
               <path d="M12 18h12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
           </div>
-          <h1 className="h4 fw-semibold mb-1">Welcome back</h1>
-          <p className="text-muted small mb-0">Log in to your gym account</p>
+          <h1 className="h4 fw-semibold mb-1">Benvenuto</h1>
+          <p className="text-muted small mb-0">Accedi al tuo account palestra</p>
         </div>
 
         <LoginForm
@@ -35,9 +35,9 @@ export function LoginPage() {
         />
 
         <p className="text-center text-muted small mt-4 mb-0">
-          Don't have an account?{" "}
+          Non hai un account?{" "}
           <a href="/register" className="text-primary text-decoration-none fw-medium">
-            Sign up
+            Registrati
           </a>
         </p>
       </div>
